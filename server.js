@@ -1,8 +1,7 @@
 import mongoose from "mongoose";
 import app from "./app.js";
 
-const DB_HOST =
-  "mongodb+srv://AniaKurtiak:jG0gXax4r3DXpTkz@cluster0.pan0snk.mongodb.net/db-contacts?retryWrites=true&w=majority";
+import { DB_HOST } from "./config.js"; 
 
 mongoose
   .connect(DB_HOST)
