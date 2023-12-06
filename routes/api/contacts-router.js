@@ -4,7 +4,7 @@ import contactsController from "../../controller/contacts-controller.js";
 
 import { isEmptyBody, isValidId } from "../../middlewares/index.js";
 
-import { validatorBody } from "../../decorators/index.js";
+import { validateBody } from "../../decorators/index.js";
 
 import {
   addContactSchema,
@@ -21,7 +21,7 @@ router.get("/:contactId", isValidId, contactsController.getById);
 router.post(
   "/",
   isEmptyBody,
-  validatorBody(addContactSchema),
+  validateBody(addContactSchema),
   contactsController.add
 );
 
@@ -31,7 +31,7 @@ router.put(
   "/:contactId",
   isEmptyBody,
   isValidId,
-  validatorBody(updateContactSchema),
+  validateBody(updateContactSchema),
   contactsController.updateById
 );
 
@@ -39,7 +39,7 @@ router.patch(
   "/:contactId/favorite",
   isEmptyBody,
   isValidId,
-  validatorBody(favoriteContactSchema),
+  validateBody(favoriteContactSchema),
   contactsController.updateById
 );
 
