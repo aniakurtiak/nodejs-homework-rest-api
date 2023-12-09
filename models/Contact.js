@@ -10,9 +10,11 @@ const contactSchema = new Schema(
     },
     email: {
       type: String,
+      required: true,
     },
     phone: {
       type: String,
+      required: true,
     },
     favorite: {
       type: Boolean,
@@ -30,24 +32,16 @@ contactSchema.pre("findOneAndUpdate", preUpdate);
 const Contact = model("contact", contactSchema);
 
 export const addContactSchema = Joi.object({
-  name: Joi.string().required().messages({
-    "any.required": `"name" must be exist`,
-    "string.base": `"name" must be text`,
-  }),
-  email: Joi.string().required().messages({
-    "any.required": `"email" must be exist`,
-  }),
-  phone: Joi.number().required().messages({
-    "any.required": `"phone" must be exist`,
-    "string.base": `"phone" must be number`,
-  }),
+  name: Joi.string().required(),
+  email: Joi.string().required(),
+  phone: Joi.string().required(),
   favorite: Joi.boolean(),
 });
 
 export const updateContactSchema = Joi.object({
   name: Joi.string(),
   email: Joi.string(),
-  phone: Joi.number(),
+  phone: Joi.string(),
   favorite: Joi.boolean(),
 });
 

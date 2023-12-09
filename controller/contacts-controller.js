@@ -1,4 +1,3 @@
-import contactService from "../models/contacts.js";
 import { HttpError } from "../helpers/index.js";
 import { ctrlWrapper } from "../decorators/index.js";
 import Contact from "../models/Contact.js";
@@ -32,7 +31,6 @@ const updateById = async (req, res) => {
 };
 
 const deleteById = async (req, res) => {
-  try {
     const { contactId } = req.params;
     const result = await Contact.findByIdAndDelete(contactId);
     if (!result) {
@@ -41,9 +39,6 @@ const deleteById = async (req, res) => {
     res.json({
       message: "Contact deleted",
     });
-  } catch (error) {
-    next(error);
-  }
 };
 
 export default {
