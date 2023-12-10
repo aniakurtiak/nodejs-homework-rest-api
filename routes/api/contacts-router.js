@@ -6,7 +6,6 @@ import { isEmptyBody, isValidId } from "../../middlewares/index.js";
 
 import { validateBody } from "../../decorators/index.js";
  
-// import isEmptyBody from "../../middlewares/index.js";
 
 import {
   addContactSchema,
