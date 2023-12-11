@@ -4,6 +4,9 @@ import logger from "morgan";
 import cors from "cors";
 
 import contactsRouter from "./routes/api/contacts-router.js";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const app = express();
 
@@ -20,7 +23,10 @@ app.use((req, res) => {
 });
 
 app.use((err, req, res, next) => {
-  res.status(500).json({ message: err.message });
-});
+  const { status = err.status || 500, message = "Server error" } = err;
+  res.status(status).json({
+    message,
+  })
+})
 
 export default app;
