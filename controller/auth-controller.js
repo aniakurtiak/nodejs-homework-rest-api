@@ -2,12 +2,19 @@ import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import "dotenv/config";
+import gravatar from 'gravatar';
+import fs from "fs/promises";
+import path from "path";
+import Jimp from 'jimp';
 
 import { ctrlWrapper } from "../decorators/index.js";
 
 import { HttpError } from "../helpers/index.js";
 
 const { JWT_SECRET } = process.env;
+
+const avatarsPath = path.resolve("public", "avatars");
+
 
 const register = async (req, res) => {
   const { email, password } = req.body;
@@ -17,11 +24,14 @@ const register = async (req, res) => {
   }
 
   const hashPassword = await bcrypt.hash(password, 10);
-  const newUser = await User.create({ ...req.body, password: hashPassword });
+  const avatarURL = gravatar.url(email);
+  const newUser = await User.create({ ...req.body, password: hashPassword, avatarURL });
   res.status(201).json({
     user : {
       email: newUser.email,
-      subscription: newUser.subscription,},
+      subscription: newUser.subscription,
+    avatarURL: newUser.avatarURL
+    },
   });
 };
 
@@ -45,16 +55,19 @@ await User.findByIdAndUpdate(user._id, {token});
     token,
     user : {
       email: user.email,
-      subscription: user.subscription},
+      subscription: user.subscription,
+      avatarURL: user.avatarURL
+    },
   });
 };
 
 const getCurrent =  async (req, res) => {
-  const { email, subscription } = req.user;
+  const { email, subscription, avatarURL } = req.user;
 
     res.json({
       email,
       subscription,
+      avatarURL,
     })
 }
 
@@ -65,9 +78,35 @@ const logout = async(req, res)=> {
   res.status(204).json();
 }
 
+const updateAvatar = async (req, res) => {
+  const { _id } = req.user;
+  if (!req.file) {
+    throw HttpError(400, 'no download file');
+  }
+
+  const {path: oldPath, filename} = req.file;
+
+  const pic = await Jimp.read(oldPath);
+  await pic
+    .autocrop()
+    .cover(250, 250, Jimp.HORIZONTAL_ALIGN_CENTER | Jimp.VERTICAL_ALIGN_MIDDLE)
+    .writeAsync(oldPath);
+
+  const newPath = path.join(avatarsPath, filename);
+  await fs.rename(oldPath, newPath);
+  const avatarURL = path.join('avatars', filename);
+  await User.findByIdAndUpdate(_id, { avatarURL });
+
+res.json({
+  avatarURL,
+});
+};
+
+
 export default {
   register: ctrlWrapper(register),
   login: ctrlWrapper(login),
   getCurrent: ctrlWrapper(getCurrent),
   logout: ctrlWrapper(logout),
+  updateAvatar: ctrlWrapper(updateAvatar)
 };
