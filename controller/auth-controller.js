@@ -17,6 +17,12 @@ const { JWT_SECRET, BASE_URL } = process.env;
 
 const avatarsPath = path.resolve("public", "avatars");
 
+const createVerifyEmail = (email, verificationToken) => ({
+  to: email,
+  subject: "Verify email",
+  html: `<a target="_blank" href="${BASE_URL}/users/verify/${verificationToken}">Click verify email</a>`
+});
+
 
 const register = async (req, res) => {
   const { email, password } = req.body;
@@ -31,11 +37,8 @@ const register = async (req, res) => {
 
   const newUser = await User.create({ ...req.body, password: hashPassword, avatarURL, verificationToken });
 
-  const verifyEmail = {
-    to: email,
-    subject: "Verify email",
-    html: `<a target="_blank" href="${BASE_URL}/users/verify/${verificationToken}">Click verify email</a>`
-}
+  const verifyEmail = createVerifyEmail(email, verificationToken);
+
 await sendEmail(verifyEmail);
 
   res.status(201).json({
@@ -143,16 +146,12 @@ const resendVerify = async (req, res) => {
   if (user.verify) {
       throw HttpError(400, "Verification has already been passed")
   }
-  const verifyEmail = {
-    to: email,
-    subject: "Verify email",
-    html: `<a target="_blank" href="${BASE_URL}/users/verify/${user.verificationToken}">Click verify email</a>`
-}
+  const verifyEmail = createVerifyEmail(email, user.verificationToken);
 
   await sendEmail(verifyEmail);
 
   res.json({
-      message: "Email send success"
+      message: "Verification email sent"
   })
 }
 
